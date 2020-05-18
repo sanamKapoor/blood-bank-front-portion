@@ -7,7 +7,7 @@ function CreatePost(props) {
 
   const history = useHistory();
 
-  const [post, setPost] = useState({
+  let [post, setPost] = useState({
     title: '',
     content: '',
   }) 
@@ -56,8 +56,8 @@ function CreatePost(props) {
           .catch(err => console.log(err))
 
           alert('Your Post has Updated.')
-          setPost('');
-      } else {
+          
+        } else {
         axios({
           url: "http://localhost:5000/post",
           method: "POST",
@@ -69,13 +69,18 @@ function CreatePost(props) {
           .then(res => {
             const { data: { message}} = res;
             console.log(message);
-            history.push('/history');
+            history.push('/bank-history');
           })
           .catch(err => console.log(err))
 
           alert('You have created a Post.')
-          setPost('');
       }
+
+      post = {
+        title: '',
+        content: ''
+      }
+      
     } else {
       alert('Please enter both Title and Description.')
     }

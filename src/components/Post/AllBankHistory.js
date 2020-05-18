@@ -7,12 +7,18 @@ function AllBankHistory({user}) {
   const [currentUser, setCurrentUser] = useState('');
   const [registerUser, setRegisterUser] = useState([]);
   const [confirmedUser, setConfirmedUser] = useState([]);
-  const [fetchOnce, setFetchOnce] = useState(true);
-  const [currentData, setCurrentData] = useState('');
+  let [showR, setShowR] = useState({
+    post: '',
+    show: false
+  });
+  let [showC, setShowC] = useState({
+    post: '',
+    show: false
+  });
 
   useEffect(() => {
     getProfile(user)
-  }, [])
+  }, [user])
 
   function getProfile(user) {
     let id = localStorage.getItem('user');
@@ -32,7 +38,7 @@ function AllBankHistory({user}) {
   }
 
   const getRegisteredUsers = donors => {
-    if(donors.length > 0 && fetchOnce){
+      setRegisterUser([])
       donors.map(d => {
         axios.get(`http://localhost:5000/donor/profile/${d.donor}`, {
           headers: {
@@ -42,15 +48,14 @@ function AllBankHistory({user}) {
         .then(res => {
           const { data : { donor } } = res;
           setRegisterUser(registerUser => [ ...registerUser, donor])
-          setFetchOnce(false)
         }).catch(err => console.log(err))      
       })
-    }
    
   }
 
   const getConfirmedUsers = confirmed => {
-    if(confirmed.length > 0 && fetchOnce){
+    // if(confirmed.length > 0 && fetchOnce){
+      setConfirmedUser([])
       confirmed.map(d => {
         axios.get(`http://localhost:5000/donor/profile/${d.donor}`, {
           headers: {
@@ -60,10 +65,10 @@ function AllBankHistory({user}) {
         .then(res => {
           const { data : { donor } } = res;
           setConfirmedUser(confirmedUser => [ ...confirmedUser, donor])
-          setFetchOnce(false)
         }).catch(err => console.log(err))      
       })
-    }  }
+    // }  
+  }
 
   const deletePost = id => {
     axios.delete(`http://localhost:5000/post/${id}`, {
@@ -139,7 +144,7 @@ function AllBankHistory({user}) {
       let data = currentUser.posts.map(post => {
         
         return(
-          <div key={post._id} style={{borderRadius: "10px"}} className="mt-4 p-3 container w-50 mx-auto bg-light border border-secondary shadow">
+          <div key={post._id} style={{borderRadius: "10px"}} className="my-5 p-3 container w-50 mx-auto bg-light border border-secondary shadow">
             <div className="row">
             <h4 className="col">{post.title}</h4>
             <span className="col text-muted text-right align-self-center">Created at : {new Date(post.updatedAt).toDateString()}</span>
@@ -150,9 +155,15 @@ function AllBankHistory({user}) {
 
               <button
               className="btn btn-info" 
-              data-toggle="collapse" aria-expanded="false" href="#collapseExample" aria-controls="collapseExample"
               onClick={() => {
-                setCurrentData('register')
+                setShowR({
+                  post: post._id,
+                  show: !showR.show
+                })
+                setShowC({
+                  post: '',
+                  show: false
+                })
                 getRegisteredUsers(post.donors)
               }}>
                 Registed User ({post.donors.length})
@@ -160,9 +171,15 @@ function AllBankHistory({user}) {
 
               <button 
               className="btn ml-1 btn-info" 
-              data-toggle="collapse" aria-expanded="false" href="#collapseExample2" aria-controls="collapseExample2"
               onClick={() => {
-                setCurrentData('confirm')
+                setShowR({
+                  post: '',
+                  show: false
+                })
+                setShowC({
+                  post: post._id,
+                  show: !showC.show
+                })
                 getConfirmedUsers(post.confirmed)
               }
               }>
@@ -182,23 +199,21 @@ function AllBankHistory({user}) {
             </div>
 
             {/* Show Users */}
-            <div className="collapse" id="collapseExample">
+
               {
-              (registerUser.length > 0 ?
+              (registerUser.length > 0 && showR.show && (showR.post === post._id)) ?
               <RegisterUserLayout users={registerUser} postId={post._id} />
              :
-             '')
+             ''
               }
-             </div>
 
-             <div className="collapse" id="collapseExample2">
               {
-              (confirmedUser.length > 0 ?
+              (confirmedUser.length > 0 && showC.show && (showC.post === post._id)) ?
               <RegisterUserLayout users={confirmedUser} postId={post._id} />
               :
-              '')
+              ''
               }
-            </div>
+                        
 
           </div>
         )
@@ -216,7 +231,7 @@ function AllBankHistory({user}) {
         ? 
         <BankUI /> 
         : 
-        <h2 className="text-center text-muted">No History</h2>
+        <h2 className="text-center text-muted mt-4">No History</h2>
       }
     </div>
   )

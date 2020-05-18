@@ -5,14 +5,15 @@ import axios from 'axios';
 
 function AllDonorHistory({ user }) {
   const [currentUser, setCurrentUser] = useState('');
-  const [allPosts, setAllPosts] = useState([]);
   const [donorHistory, setDonorHistory] = useState([])
 
   useEffect(() => {
     getProfile(user)
-    getAllPosts(allPosts)
-  })
+  }, [user])
 
+  useEffect(() => {
+    getAllPosts()
+  }, [])
 
   function getProfile(user) {
     let id = localStorage.getItem('user');
@@ -31,33 +32,32 @@ function AllDonorHistory({ user }) {
     })
   }
 
-  function getAllPosts(allPosts){
+  function getAllPosts(){
     let userId = localStorage.getItem('user');
 
     axios.get('http://localhost:5000/post/all')
       .then(res => {
           const { data: { posts }} = res;
-          setAllPosts(posts);
-        })
-      .catch(err => console.log(err))
-
-      if(allPosts.length > 0){
-        allPosts.map(post => {
-          let confirmedDonors = post.confirmed;
-
-          if(confirmedDonors.length > 0){
-            confirmedDonors.map(confD => {
-              if(confD.donor === userId){
-                let bank = post.creator;
-                setDonorHistory(donorHistory => [ ...donorHistory, bank])
-                
+          if(posts.length > 0){
+            posts.map(post => {
+              let confirmedDonors = post.confirmed;
+    
+              if(confirmedDonors.length > 0){
+                confirmedDonors.map(confD => {
+                  if(confD.donor === userId){
+                    let bank = post.creator;
+                    setDonorHistory(donorHistory => [ ...donorHistory, bank])
+                    
+                  }
+                })
               }
             })
           }
         })
-      }
+      .catch(err => console.log(err))
 
-      // console.log(allPosts, donorHistory);
+      
+
     }
 
 
@@ -113,7 +113,7 @@ function AllDonorHistory({ user }) {
           ?
           donorHistory.map(donor => <DonorUI />)
           :
-          <h2 className="text-center text-muted">No History</h2>
+          <h2 className="text-center text-muted mt-4">No History</h2>
       }
     </div>
   

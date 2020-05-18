@@ -18,7 +18,6 @@ import AuthContext from './context/AuthContext';
 import ShowProfile from './components/ShowProfile';
 import CreatePost from './components/Post/CreatePost';
 import AllPosts from './components/Post/AllPosts';
-import AllCreatedPosts from './components/Post/AllCreatedPosts';
 import AllDonorHistory from './components/Post/AllDonorHistory';
 import AllBankHistory from './components/Post/AllBankHistory';
 
@@ -85,9 +84,7 @@ function App() {
       <Route path="/profile"> 
         <ShowProfile user={user} />
       </Route>
-      {/* <Route path="/history"> 
-        <AllCreatedPosts user={user} />
-      </Route> */}
+      
 
       <Route path="/donor-history"> 
         <AllDonorHistory user={user} />
